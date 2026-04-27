@@ -1,3 +1,4 @@
+
 # 🐾 Game Edukasi Hewan Peliharaan
 
 Game edukasi interaktif untuk anak usia **5–6 tahun** dengan tema hewan peliharaan yang lucu dan berwarna cerah. Game ini bertujuan mengembangkan kemampuan kognitif anak melalui aktivitas mencocokkan, mengelompokkan, serta berpikir logis menggunakan permainan labirin.
