@@ -1,0 +1,536 @@
+---
+import Layout from '../layouts/Layout.astro';
+import BackButton from '../components/BackButton.astro';
+---
+
+<Layout title="Level 2 - Mengelompokkan">
+    <div class="page-content level-page">
+        <BackButton />
+        <div class="header">
+            <h2 class="level-title">Ayo Kelompokkan!</h2>
+            <p class="level-instruction">Seret hewan ke kelompok yang benar</p>
+        </div>
+        
+        <div id="level2-game-area" class="game-area">
+            <div class="drag-items" id="draggable-animals"></div>
+            <div class="drop-zones">
+                <div class="drop-zone" id="zone-herbivore" data-type="herbivore">
+                    <h3>Pemakan Tumbuhan 🌿</h3>
+                    <div class="zone-items"></div>
+                </div>
+                <div class="drop-zone" id="zone-carnivore" data-type="carnivore">
+                    <h3>Pemakan Daging 🍖</h3>
+                    <div class="zone-items"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</Layout>
+
+<style>
+    .level-page {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding: 12px 20px 15px;
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 8px;
+        flex-shrink: 0;
+    }
+
+    .level-title {
+        font-size: clamp(1.2rem, 3.5vw, 2.2rem);
+        margin-bottom: 2px;
+        color: white;
+        text-shadow: 2px 2px 0px var(--primary-dark), -1px -1px 0 var(--primary-dark), 1px -1px 0 var(--primary-dark), -1px 1px 0 var(--primary-dark), 1px 1px 0 var(--primary-dark), 0 4px 10px rgba(0,0,0,0.2);
+        letter-spacing: 1px;
+    }
+
+    .level-instruction {
+        font-family: 'Nunito', sans-serif;
+        font-size: clamp(0.65rem, 1.8vw, 0.95rem);
+        font-weight: 800;
+        color: var(--text-dark);
+        background: rgba(255, 255, 255, 0.95);
+        display: inline-block;
+        padding: 3px 14px;
+        border-radius: 18px;
+        border: 2px solid var(--tertiary);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    }
+
+    .game-area {
+        flex: 1;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 20px;
+        padding: 10px 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        box-shadow: inset 0 0 15px rgba(255,255,255,0.8);
+        border: 3px solid rgba(255,255,255,0.8);
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .drag-items {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.6);
+        padding: 10px 15px;
+        border-radius: 16px;
+        min-height: 70px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        flex-shrink: 0;
+        align-items: center;
+    }
+
+    .drop-zones {
+        display: flex;
+        justify-content: center;
+        flex: 1;
+        gap: 10px;
+        min-height: 80px;
+    }
+
+    .drop-zone {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.6);
+        border: 4px dashed rgba(255,255,255,0.8);
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 8px 8px;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .zone-items {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-content: flex-start;
+        gap: 6px;
+        flex: 1;
+        width: 100%;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 4px;
+    }
+
+    /* Hide scrollbar but keep functionality */
+    .zone-items::-webkit-scrollbar {
+        width: 4px;
+    }
+    .zone-items::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .zone-items::-webkit-scrollbar-thumb {
+        background: rgba(0,0,0,0.1);
+        border-radius: 4px;
+    }
+
+    #zone-herbivore {
+        background: linear-gradient(to bottom, rgba(132, 250, 176, 0.2), rgba(255,255,255,0.7));
+        border-color: var(--success);
+    }
+    
+    #zone-carnivore {
+        background: linear-gradient(to bottom, rgba(255, 107, 107, 0.2), rgba(255,255,255,0.7));
+        border-color: var(--primary);
+    }
+
+    .drop-zone h3 {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 6px;
+        color: var(--text-dark);
+        font-size: clamp(0.85rem, 2.5vw, 1.6rem);
+        text-shadow: 1px 1px 0px white;
+        flex-shrink: 0;
+    }
+
+    .drop-zone:global(.hovered) {
+        transform: scale(1.02);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+    }
+    #zone-herbivore:global(.hovered) {
+        background: linear-gradient(to bottom, rgba(132, 250, 176, 0.5), rgba(255,255,255,0.9));
+    }
+    #zone-carnivore:global(.hovered) {
+        background: linear-gradient(to bottom, rgba(255, 107, 107, 0.5), rgba(255,255,255,0.9));
+    }
+
+    :global(.entity) {
+        width: clamp(55px, 10vh, 90px);
+        height: clamp(55px, 10vh, 90px);
+        background: white;
+        border-radius: 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2px;
+        font-size: clamp(2.5rem, 6vh, 3.5rem);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.12), inset 0 -3px 0 rgba(0,0,0,0.05);
+        cursor: grab;
+        user-select: none;
+        border: 4px solid white;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+        flex-shrink: 0;
+        will-change: transform, left, top;
+    }
+
+    :global(.entity .entity-label) {
+        font-family: 'Nunito', sans-serif;
+        font-size: clamp(0.5rem, 1.1vh, 0.75rem);
+        font-weight: 800;
+        color: var(--text-dark);
+        pointer-events: none;
+        line-height: 1;
+        opacity: 0.8;
+    }
+
+    :global(.entity .emoji-icon) {
+        font-size: clamp(1.8rem, 5vh, 3.5rem);
+        line-height: 1;
+        filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.15));
+        pointer-events: none;
+    }
+    
+    :global(.entity:hover) {
+        transform: scale(1.08) translateY(-3px);
+    }
+
+    :global(.entity.matched) {
+        cursor: default;
+        transform: scale(0.85) !important;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+        border-color: var(--success);
+    }
+
+    :global(.dragging) {
+        opacity: 0.5;
+        transform: scale(1.1);
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-8px); }
+        50% { transform: translateX(8px); }
+        75% { transform: translateX(-8px); }
+    }
+    :global(.shake) {
+        animation: shake 0.4s ease-in-out;
+        border-color: #FF5C8D !important;
+    }
+
+    /* Tablet */
+    @media (max-width: 768px) {
+        .level-page {
+            padding: 8px 12px 10px;
+        }
+        .game-area {
+            padding: 8px 10px;
+            gap: 8px;
+            border-radius: 16px;
+        }
+        .drag-items {
+            gap: 8px;
+            padding: 8px 10px;
+            min-height: 60px;
+        }
+        .drop-zones {
+            gap: 8px;
+        }
+        .drop-zone {
+            padding: 6px;
+            border-radius: 16px;
+            border-width: 3px;
+        }
+        :global(.entity) {
+            width: clamp(50px, 9vh, 75px);
+            height: clamp(50px, 9vh, 75px);
+            border-width: 3px;
+            border-radius: 14px;
+        }
+        :global(.entity .emoji-icon) {
+            font-size: clamp(1.5rem, 4vh, 2.8rem);
+        }
+    }
+
+    /* Small phones */
+    @media (max-width: 400px) {
+        .level-page {
+            padding: 6px 8px 8px;
+        }
+        .game-area {
+            padding: 6px 6px;
+            gap: 6px;
+        }
+        .drag-items {
+            gap: 6px;
+            padding: 6px 8px;
+            min-height: 50px;
+        }
+        .drop-zones {
+            gap: 6px;
+        }
+        .drop-zone {
+            padding: 4px;
+            border-width: 2px;
+        }
+        .drop-zone h3 {
+            font-size: clamp(0.7rem, 3vw, 1rem);
+            margin-bottom: 4px;
+        }
+        :global(.entity) {
+            width: clamp(42px, 8vh, 60px);
+            height: clamp(42px, 8vh, 60px);
+            border-width: 2px;
+            border-radius: 12px;
+        }
+        :global(.entity .emoji-icon) {
+            font-size: clamp(1.3rem, 3.5vh, 2.2rem);
+        }
+        :global(.entity .entity-label) {
+            font-size: 0.45rem;
+        }
+    }
+
+    /* Landscape mobile */
+    @media (max-height: 500px) {
+        .level-page {
+            padding: 4px 10px 6px;
+        }
+        .header {
+            margin-bottom: 4px;
+        }
+        .game-area {
+            gap: 6px;
+            padding: 6px 8px;
+        }
+        .drag-items {
+            min-height: 45px;
+            padding: 5px 10px;
+            gap: 6px;
+        }
+        .drop-zone {
+            padding: 4px 6px;
+        }
+        .drop-zone h3 {
+            font-size: clamp(0.75rem, 2vw, 1.1rem);
+            margin-bottom: 3px;
+        }
+        :global(.entity) {
+            width: clamp(40px, 10vh, 65px);
+            height: clamp(40px, 10vh, 65px);
+            border-radius: 12px;
+        }
+        :global(.entity .emoji-icon) {
+            font-size: clamp(1.2rem, 5vh, 2.5rem);
+        }
+        :global(.entity .entity-label) {
+            display: none;
+        }
+    }
+
+    /* Very narrow screens: stack drop zones vertically */
+    @media (max-width: 360px) {
+        .drop-zones {
+            flex-direction: column;
+        }
+        .drop-zone {
+            flex: none;
+            min-height: 0;
+        }
+        .zone-items {
+            flex-direction: row;
+        }
+    }
+</style>
+
+<script>
+    import { PETS } from '../utils/data';
+    import { speak, playSuccessSound, playErrorSound } from '../utils/audio';
+
+    document.addEventListener('astro:page-load', () => {
+        if(window.location.pathname !== '/level2') return;
+
+        speak('Ayo kelompokkan hewan sesuai jenis makanannya!');
+
+        let matchedCount2 = 0;
+        const container = document.getElementById('draggable-animals');
+        if (!container) return;
+        
+        container.innerHTML = '';
+
+        const shuffledPets = [...PETS].sort(() => Math.random() - 0.5);
+
+        shuffledPets.forEach((pet) => {
+            const div = document.createElement('div');
+            div.className = 'entity animal draggable';
+            div.innerHTML = `<span class="emoji-icon">${pet.emoji}</span><span class="entity-label">${pet.name}</span>`;
+            div.dataset.type = pet.type;
+            div.draggable = true;
+            
+            div.addEventListener('dragstart', dragStart);
+            div.addEventListener('dragend', dragEnd);
+            
+            // Touch support
+            div.addEventListener('touchstart', touchStart, {passive: false});
+            div.addEventListener('touchmove', touchMove, {passive: false});
+            div.addEventListener('touchend', touchEnd);
+
+            container.appendChild(div);
+        });
+
+        const zones = document.querySelectorAll('.drop-zone');
+        zones.forEach(zone => {
+            zone.addEventListener('dragover', dragOver);
+            zone.addEventListener('dragenter', dragEnter);
+            zone.addEventListener('dragleave', dragLeave);
+            zone.addEventListener('drop', drop);
+        });
+
+        function dragStart(e: DragEvent) {
+            if(!e.dataTransfer || !e.target) return;
+            const target = (e.target as HTMLElement).closest('.entity') as HTMLElement;
+            if (!target) return;
+            e.dataTransfer.setData('text/plain', target.dataset.type || '');
+            target.classList.add('dragging');
+            setTimeout(() => target.style.opacity = '0.5', 0);
+        }
+
+        function dragEnd(e: DragEvent) {
+            const target = (e.target as HTMLElement).closest('.entity') as HTMLElement;
+            if (!target) return;
+            target.classList.remove('dragging');
+            target.style.opacity = '1';
+            document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('hovered'));
+        }
+
+        function dragOver(e: DragEvent) {
+            e.preventDefault();
+        }
+
+        function dragEnter(e: DragEvent) {
+            e.preventDefault();
+            (e.currentTarget as HTMLElement).classList.add('hovered');
+        }
+
+        function dragLeave(e: DragEvent) {
+            (e.currentTarget as HTMLElement).classList.remove('hovered');
+        }
+
+        function drop(e: DragEvent) {
+            e.preventDefault();
+            const zone = e.currentTarget as HTMLElement;
+            zone.classList.remove('hovered');
+            
+            const draggable = document.querySelector('.dragging') as HTMLElement;
+            if (!draggable) return;
+
+            const zoneItems = zone.querySelector('.zone-items');
+            if (!zoneItems) return;
+
+            if (draggable.dataset.type === zone.dataset.type) {
+                zoneItems.appendChild(draggable);
+                draggable.draggable = false;
+                draggable.classList.add('matched');
+                playSuccessSound();
+                
+                matchedCount2++;
+                if (matchedCount2 === PETS.length) {
+                    setTimeout(() => {
+                        (window as any).showFeedback(true, true, '/');
+                    }, 1000);
+                }
+            } else {
+                playErrorSound();
+                draggable.classList.add('shake');
+                setTimeout(() => draggable.classList.remove('shake'), 500);
+            }
+        }
+
+        let draggedEl: HTMLElement | null = null;
+        function touchStart(e: TouchEvent) {
+            if (draggedEl) return; // Prevent multi-touch overriding
+            const target = (e.target as HTMLElement).closest('.entity') as HTMLElement;
+            if (!target || target.classList.contains('matched')) return;
+            draggedEl = target;
+            target.classList.add('dragging');
+        }
+        let rafId: number | null = null;
+        function touchMove(e: TouchEvent) {
+            if (!draggedEl) return;
+            e.preventDefault();
+            
+            if (rafId) cancelAnimationFrame(rafId);
+            
+            // Capture touch locations so we don't read stale event data
+            const clientX = e.targetTouches[0].clientX;
+            const clientY = e.targetTouches[0].clientY;
+            
+            rafId = requestAnimationFrame(() => {
+                if(!draggedEl) return;
+                draggedEl.style.position = 'fixed';
+                draggedEl.style.left = clientX - 35 + 'px';
+                draggedEl.style.top = clientY - 35 + 'px';
+                draggedEl.style.zIndex = '1000';
+            });
+        }
+        function touchEnd(e: TouchEvent) {
+            if (!draggedEl) return;
+            draggedEl.classList.remove('dragging');
+            
+            const touchLocation = e.changedTouches[0];
+            const elements = document.elementsFromPoint(touchLocation.clientX, touchLocation.clientY);
+            const dropZone = elements.find(el => el.classList.contains('drop-zone')) as HTMLElement;
+            
+            if (dropZone) {
+                const zoneItems = dropZone.querySelector('.zone-items');
+                if (draggedEl.dataset.type === dropZone.dataset.type && zoneItems) {
+                    draggedEl.style.position = '';
+                    draggedEl.style.left = '';
+                    draggedEl.style.top = '';
+                    draggedEl.style.zIndex = '';
+                    zoneItems.appendChild(draggedEl);
+                    draggedEl.classList.add('matched');
+                    playSuccessSound();
+                    
+                    matchedCount2++;
+                    if (matchedCount2 === PETS.length) {
+                        setTimeout(() => {
+                            (window as any).showFeedback(true, true, '/');
+                        }, 1000);
+                    }
+                } else {
+                    playErrorSound();
+                    draggedEl.style.position = '';
+                    draggedEl.style.left = '';
+                    draggedEl.style.top = '';
+                    draggedEl.style.zIndex = '';
+                }
+            } else {
+                draggedEl.style.position = '';
+                draggedEl.style.left = '';
+                draggedEl.style.top = '';
+                draggedEl.style.zIndex = '';
+            }
+            draggedEl = null;
+        }
+    });
+</script>

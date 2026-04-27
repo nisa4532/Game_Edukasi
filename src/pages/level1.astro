@@ -1,0 +1,641 @@
+---
+import Layout from '../layouts/Layout.astro';
+import BackButton from '../components/BackButton.astro';
+---
+
+<Layout title="Level 1 - Mencocokkan">
+    <div class="page-content level-page">
+        <BackButton />
+        <div class="header">
+            <div class="header-top">
+                <h2 class="level-title">Ayo Tarik Garis!</h2>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <span class="progress-text" id="progress-text">0/5</span>
+                </div>
+            </div>
+            <p class="level-instruction">Hubungkan hewan dengan makanan kesukaannya</p>
+        </div>
+        
+        <!-- Round indicator -->
+        <div class="round-indicator" id="round-indicator">
+            <span class="round-dot active" id="dot-1"></span>
+            <span class="round-dot" id="dot-2"></span>
+        </div>
+        
+        <div id="level1-game-area" class="game-area">
+            <div class="game-bg-pattern"></div>
+            
+            <svg id="lines-svg"></svg>
+            <svg id="active-line-svg">
+                <line id="active-line" x1="0" y1="0" x2="0" y2="0" stroke="#FFD93D" stroke-width="10" stroke-linecap="round" class="hidden" />
+            </svg>
+            <div class="entities-column" id="animals-container"></div>
+            <div class="entities-column" id="foods-container"></div>
+        </div>
+    </div>
+</Layout>
+
+<style>
+    .level-page {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        position: relative;
+        padding: 12px 20px 15px;
+    }
+
+    .header {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 4px;
+    }
+
+    .header-top {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        width: 100%;
+        margin-bottom: 2px;
+        flex-wrap: wrap;
+    }
+
+    .level-title {
+        font-size: clamp(1.2rem, 3.5vw, 2.2rem);
+        margin: 0;
+        color: white;
+        text-shadow: 2px 2px 0px var(--primary-dark), -1px -1px 0 var(--primary-dark), 1px -1px 0 var(--primary-dark), -1px 1px 0 var(--primary-dark), 1px 1px 0 var(--primary-dark), 0 4px 10px rgba(0,0,0,0.2);
+        letter-spacing: 1px;
+        white-space: nowrap;
+    }
+
+    .level-instruction {
+        font-family: 'Nunito', sans-serif;
+        font-size: clamp(0.65rem, 1.8vw, 0.95rem);
+        font-weight: 800;
+        color: var(--text-dark);
+        background: rgba(255, 255, 255, 0.95);
+        display: inline-block;
+        padding: 3px 14px;
+        border-radius: 18px;
+        border: 2px solid var(--tertiary);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        margin: 0;
+    }
+
+    .progress-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255,255,255,0.9);
+        padding: 5px 12px;
+        border-radius: 18px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        border: 2px solid var(--bg-light);
+        flex-shrink: 0;
+    }
+
+    .progress-bar {
+        width: 60px;
+        height: 8px;
+        background: var(--bg-light);
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .progress-fill {
+        height: 100%;
+        width: 0%;
+        background: var(--grad-success);
+        border-radius: 6px;
+        transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .progress-text {
+        font-family: 'Fredoka One', cursive;
+        color: var(--primary);
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    /* Round indicator dots */
+    .round-indicator {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 5px;
+        flex-shrink: 0;
+    }
+    .round-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.5);
+        border: 2px solid white;
+        transition: all 0.3s;
+    }
+    .round-dot.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        transform: scale(1.2);
+    }
+    .round-dot.done {
+        background: var(--success);
+        border-color: var(--success);
+    }
+
+    .game-area {
+        flex: 1;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border-radius: 20px;
+        padding: 10px 6%;
+        display: flex;
+        position: relative;
+        justify-content: center;
+        align-items: stretch;
+        gap: clamp(40px, 15vw, 280px);
+        box-shadow: inset 0 0 15px rgba(255,255,255,0.8), 0 6px 15px rgba(0,0,0,0.05);
+        border: 3px solid rgba(255,255,255,0.8);
+        min-height: 0;
+        overflow: hidden;
+        touch-action: none;
+    }
+
+    .game-bg-pattern {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0.25;
+        background-image: radial-gradient(var(--tertiary) 1.5px, transparent 1.5px);
+        background-size: 25px 25px;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    #lines-svg, #active-line-svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    #active-line-svg {
+        z-index: 3;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .entities-column {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        z-index: 2;
+        height: 100%;
+        width: auto;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    :global(.entity) {
+        width: clamp(65px, 12vh, 120px);
+        height: clamp(65px, 12vh, 120px);
+        background: white;
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12), inset 0 -4px 0 rgba(0,0,0,0.05);
+        cursor: grab;
+        user-select: none;
+        border: 4px solid white;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        position: relative;
+        flex-shrink: 1;
+        min-height: 0;
+        animation: popIn 0.4s ease-out backwards;
+        will-change: transform;
+    }
+
+    :global(.entity:hover) {
+        transform: scale(1.08) translateY(-4px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.18), inset 0 -4px 0 rgba(0,0,0,0.05);
+    }
+    
+    :global(.entity.animal:hover) {
+        animation: jiggle 0.5s ease-in-out infinite;
+    }
+
+    :global(.entity.animal) { border-color: var(--primary); }
+    :global(.entity.food) { border-color: var(--warning); }
+    
+    :global(.entity.matched) { 
+        opacity: 0.7; 
+        cursor: default; 
+        transform: scale(0.92) !important; 
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08); 
+        border-color: var(--success); 
+        animation: none !important;
+    }
+    
+    :global(.emoji-icon) {
+        font-size: clamp(2rem, 7vh, 4.5rem);
+        line-height: 1;
+        filter: drop-shadow(2px 3px 4px rgba(0,0,0,0.2));
+        pointer-events: none;
+        display: block;
+    }
+    
+    :global(.entity-label) {
+        font-family: 'Nunito', sans-serif;
+        font-size: clamp(0.5rem, 1.1vh, 0.75rem);
+        font-weight: 800;
+        color: var(--text-dark);
+        pointer-events: none;
+        line-height: 1;
+        opacity: 0.8;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-8px); }
+        50% { transform: translateX(8px); }
+        75% { transform: translateX(-8px); }
+    }
+    
+    @keyframes jiggle {
+        0%, 100% { transform: rotate(-3deg) scale(1.08); }
+        50% { transform: rotate(3deg) scale(1.08); }
+    }
+
+    :global(.shake) {
+        animation: shake 0.4s ease-in-out !important;
+        border-color: #FF5C8D !important;
+    }
+    
+    :global(.star-burst) {
+        position: absolute;
+        font-size: 1.8rem;
+        pointer-events: none;
+        animation: burstOut 0.8s forwards cubic-bezier(0.1, 0.8, 0.3, 1);
+        z-index: 10;
+        opacity: 0;
+    }
+    
+    @keyframes burstOut {
+        0% { transform: scale(0) translate(0, 0) rotate(0deg); opacity: 1; }
+        100% { transform: scale(1.5) translate(var(--tx), var(--ty)) rotate(180deg); opacity: 0; }
+    }
+
+    /* Tablet */
+    @media (max-width: 768px) {
+        .level-page {
+            padding: 8px 12px 10px;
+        }
+        .game-area {
+            gap: clamp(30px, 12vw, 180px);
+            padding: 8px 4%;
+            border-radius: 16px;
+        }
+        :global(.entity) {
+            width: clamp(55px, 11vh, 100px);
+            height: clamp(55px, 11vh, 100px);
+            border-radius: 16px;
+            border-width: 3px;
+        }
+        :global(.emoji-icon) {
+            font-size: clamp(1.8rem, 6vh, 3.5rem);
+        }
+    }
+
+    /* Small phones */
+    @media (max-width: 400px) {
+        .level-page {
+            padding: 6px 8px 8px;
+        }
+        .header-top {
+            gap: 8px;
+        }
+        .progress-container {
+            padding: 3px 8px;
+        }
+        .progress-bar {
+            width: 45px;
+        }
+        .game-area {
+            gap: clamp(20px, 10vw, 100px);
+            padding: 6px 3%;
+            border-radius: 12px;
+            border-width: 2px;
+        }
+        :global(.entity) {
+            width: clamp(50px, 10vh, 80px);
+            height: clamp(50px, 10vh, 80px);
+            border-width: 3px;
+            border-radius: 14px;
+        }
+        :global(.emoji-icon) {
+            font-size: clamp(1.5rem, 5vh, 2.8rem);
+        }
+    }
+
+    /* Landscape mobile */
+    @media (max-height: 500px) {
+        .level-page {
+            padding: 4px 12px 6px;
+        }
+        .header {
+            margin-bottom: 2px;
+        }
+        .round-indicator {
+            margin-bottom: 3px;
+        }
+        .round-dot {
+            width: 8px;
+            height: 8px;
+        }
+        .game-area {
+            border-radius: 12px;
+            padding: 6px 4%;
+            gap: clamp(30px, 12vw, 200px);
+        }
+        :global(.entity) {
+            width: clamp(45px, 11vh, 80px);
+            height: clamp(45px, 11vh, 80px);
+            border-radius: 12px;
+            border-width: 3px;
+        }
+        :global(.emoji-icon) {
+            font-size: clamp(1.5rem, 7vh, 3rem);
+        }
+        :global(.entity-label) {
+            display: none;
+        }
+    }
+</style>
+
+<script>
+    import { PETS, FOODS } from '../utils/data';
+    import { playApplauseSound, playKeepTryingSound, speak } from '../utils/audio';
+
+    document.addEventListener('astro:page-load', () => {
+        if(window.location.pathname !== '/level1') return;
+
+        const animalsContainer = document.getElementById('animals-container');
+        const foodsContainer = document.getElementById('foods-container');
+        const svg = document.getElementById('lines-svg');
+        const activeLine = document.getElementById('active-line');
+        const gameArea = document.getElementById('level1-game-area');
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+        const dot1 = document.getElementById('dot-1');
+        const dot2 = document.getElementById('dot-2');
+        
+        if (!animalsContainer || !foodsContainer || !svg || !activeLine || !gameArea) return;
+
+        // --- Round system: split 5 animals into rounds of 3 + 2 ---
+        const allPets = [...PETS];
+        const allFoods = [...FOODS];
+        
+        const rounds = [
+            { pets: allPets.slice(0, 3), foods: allFoods.filter(f => allPets.slice(0, 3).some(p => p.food === f.id)) },
+            { pets: allPets.slice(3), foods: allFoods.filter(f => allPets.slice(3).some(p => p.food === f.id)) }
+        ];
+        
+        let currentRound = 0;
+        let matchedInRound = 0;
+        let totalMatched = 0;
+        const totalPets = PETS.length;
+
+        function updateProgress() {
+            if(progressFill && progressText) {
+                const percent = (totalMatched / totalPets) * 100;
+                progressFill.style.width = `${percent}%`;
+                progressText.textContent = `${totalMatched}/${totalPets}`;
+            }
+        }
+
+        function loadRound(roundIndex: number) {
+            animalsContainer!.innerHTML = '';
+            foodsContainer!.innerHTML = '';
+            svg!.innerHTML = '';
+            matchedInRound = 0;
+
+            const round = rounds[roundIndex];
+            const shuffledPets = [...round.pets].sort(() => Math.random() - 0.5);
+            const shuffledFoods = [...round.foods].sort(() => Math.random() - 0.5);
+
+            shuffledPets.forEach((pet, i) => {
+                const div = document.createElement('div');
+                div.className = 'entity animal';
+                div.innerHTML = `<span class="emoji-icon">${pet.emoji}</span><span class="entity-label">${pet.name}</span>`;
+                div.dataset.id = pet.id;
+                div.dataset.food = pet.food;
+                div.style.animationDelay = `${i * 0.1}s`;
+                animalsContainer!.appendChild(div);
+            });
+
+            shuffledFoods.forEach((food, i) => {
+                const div = document.createElement('div');
+                div.className = 'entity food';
+                div.innerHTML = `<span class="emoji-icon">${food.emoji}</span><span class="entity-label">${food.name}</span>`;
+                div.dataset.id = food.id;
+                div.style.animationDelay = `${i * 0.1}s`;
+                foodsContainer!.appendChild(div);
+            });
+
+            // Update round dots
+            if(dot1 && dot2) {
+                dot1.className = roundIndex === 0 ? 'round-dot active' : 'round-dot done';
+                dot2.className = roundIndex === 1 ? 'round-dot active' : 'round-dot';
+            }
+        }
+
+        // --- Drag to Draw Logic ---
+        let isDrawing = false;
+        let currentAnimal: HTMLElement | null = null;
+        let rafId: number | null = null;
+
+        function getCenter(el: HTMLElement) {
+            const rect = el.getBoundingClientRect();
+            return {
+                x: rect.left + rect.width / 2,
+                y: rect.top + rect.height / 2
+            };
+        }
+
+        function createStarBurst(x: number, y: number) {
+            for(let i = 0; i < 5; i++) {
+                const star = document.createElement('div');
+                star.className = 'star-burst';
+                star.textContent = '⭐';
+                star.style.left = `${x - 15}px`;
+                star.style.top = `${y - 15}px`;
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 40 + Math.random() * 40;
+                star.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
+                star.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
+                document.body.appendChild(star);
+                setTimeout(() => star.remove(), 800);
+            }
+        }
+
+        function drawLine(el1: HTMLElement, el2: HTMLElement) {
+            const c1 = getCenter(el1);
+            const c2 = getCenter(el2);
+            const svgRect = svg!.getBoundingClientRect();
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', (c1.x - svgRect.left).toString());
+            line.setAttribute('y1', (c1.y - svgRect.top).toString());
+            line.setAttribute('x2', (c2.x - svgRect.left).toString());
+            line.setAttribute('y2', (c2.y - svgRect.top).toString());
+            line.setAttribute('stroke', '#2ED573');
+            line.setAttribute('stroke-width', '10');
+            line.setAttribute('stroke-linecap', 'round');
+            svg!.appendChild(line);
+        }
+
+        function handlePointerDown(e: Event) {
+            const target = (e.target as HTMLElement).closest('.animal') as HTMLElement;
+            if (!target || target.classList.contains('matched')) return;
+            if ('setPointerCapture' in target && e instanceof PointerEvent) {
+                target.setPointerCapture(e.pointerId);
+            }
+            e.preventDefault();
+            isDrawing = true;
+            currentAnimal = target;
+            const center = getCenter(target);
+            const svgRect = gameArea!.getBoundingClientRect();
+            activeLine!.setAttribute('x1', (center.x - svgRect.left).toString());
+            activeLine!.setAttribute('y1', (center.y - svgRect.top).toString());
+            activeLine!.setAttribute('x2', (center.x - svgRect.left).toString());
+            activeLine!.setAttribute('y2', (center.y - svgRect.top).toString());
+            activeLine!.classList.remove('hidden');
+            activeLine!.setAttribute('stroke', '#FFD93D');
+        }
+
+        function handlePointerMove(e: Event) {
+            if (!isDrawing || !currentAnimal) return;
+            e.preventDefault();
+            
+            if (rafId) cancelAnimationFrame(rafId);
+            
+            const pos = e instanceof PointerEvent ? { x: e.clientX, y: e.clientY } : { x: (e as MouseEvent).clientX, y: (e as MouseEvent).clientY };
+            
+            rafId = requestAnimationFrame(() => {
+                const svgRect = gameArea!.getBoundingClientRect();
+                let cx = pos.x - svgRect.left;
+                let cy = pos.y - svgRect.top;
+
+                let isSnapped = false;
+                document.querySelectorAll('.food:not(.matched)').forEach(food => {
+                    const fc = getCenter(food as HTMLElement);
+                    const dist = Math.sqrt((pos.x - fc.x)**2 + (pos.y - fc.y)**2);
+                    if(dist < 80) {
+                        cx = fc.x - svgRect.left;
+                        cy = fc.y - svgRect.top;
+                        isSnapped = true;
+                    }
+                });
+
+                activeLine!.setAttribute('stroke', isSnapped ? '#4ECDC4' : '#FFD93D');
+                activeLine!.setAttribute('x2', cx.toString());
+                activeLine!.setAttribute('y2', cy.toString());
+            });
+        }
+
+        function handlePointerUp(e: Event) {
+            if (!isDrawing || !currentAnimal) return;
+            isDrawing = false;
+            activeLine!.classList.add('hidden');
+            
+            const clientX = (e as PointerEvent).clientX;
+            const clientY = (e as PointerEvent).clientY;
+
+            let targetFood: HTMLElement | null = null;
+            document.querySelectorAll('.food:not(.matched)').forEach(food => {
+                const fc = getCenter(food as HTMLElement);
+                if(Math.sqrt((clientX - fc.x)**2 + (clientY - fc.y)**2) < 80) {
+                    targetFood = food as HTMLElement;
+                }
+            });
+
+            if (!targetFood) {
+                const els = document.elementsFromPoint(clientX, clientY);
+                targetFood = els.find(el => el.closest('.food'))?.closest('.food') as HTMLElement;
+            }
+
+            if (targetFood && !targetFood.classList.contains('matched')) {
+                if (currentAnimal.dataset.food === targetFood.dataset.id) {
+                    targetFood.classList.add('matched');
+                    currentAnimal.classList.add('matched');
+                    drawLine(currentAnimal, targetFood);
+                    playApplauseSound();
+                    createStarBurst(getCenter(targetFood).x, getCenter(targetFood).y);
+                    
+                    matchedInRound++;
+                    totalMatched++;
+                    updateProgress();
+
+                    const roundSize = rounds[currentRound].pets.length;
+                    if (matchedInRound === roundSize) {
+                        if (currentRound < rounds.length - 1) {
+                            // Move to next round
+                            setTimeout(() => {
+                                currentRound++;
+                                loadRound(currentRound);
+                                speak('Bagus! Lanjut ke bagian berikutnya!');
+                            }, 800);
+                        } else {
+                            // All done!
+                            setTimeout(() => {
+                                (window as any).showFeedback(true, true, '/');
+                            }, 1000);
+                        }
+                    }
+                } else {
+                    playKeepTryingSound();
+                    targetFood.classList.add('shake');
+                    setTimeout(() => targetFood!.classList.remove('shake'), 400);
+                }
+            }
+            
+            if ('releasePointerCapture' in currentAnimal && e instanceof PointerEvent) {
+                currentAnimal.releasePointerCapture(e.pointerId);
+            }
+            currentAnimal = null;
+        }
+
+        gameArea.addEventListener('pointerdown', handlePointerDown);
+        document.addEventListener('pointermove', handlePointerMove, {passive: false});
+        document.addEventListener('pointerup', handlePointerUp);
+        
+        document.addEventListener('astro:before-swap', () => {
+            document.removeEventListener('pointermove', handlePointerMove);
+            document.removeEventListener('pointerup', handlePointerUp);
+            if (gameArea) gameArea.removeEventListener('pointerdown', handlePointerDown);
+        }, { once: true });
+        
+        // Start round 1
+        loadRound(0);
+        updateProgress();
+        speak('Ayo hubungkan hewan dengan makanan kesukaannya!');
+    });
+</script>

@@ -1,0 +1,100 @@
+---
+// src/components/BackButton.astro
+---
+
+<a href="/" class="btn-back" data-astro-prefetch aria-label="Kembali ke Beranda">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="home-icon">
+        <path d="M11.47 3.841a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.061l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 1 0 1.061 1.06l8.69-8.689Z" />
+        <path d="m12 5.432 8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a2.29 2.29 0 0 0 .091-.086L12 5.432Z" />
+    </svg>
+</a>
+
+<style>
+.btn-back {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: white;
+    border: 4px solid var(--primary);
+    color: var(--primary);
+    width: 55px;
+    height: 55px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15), 0 5px 0 var(--primary-dark);
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 100;
+}
+
+.home-icon {
+    width: 28px;
+    height: 28px;
+    transition: transform 0.2s;
+}
+
+.btn-back:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2), 0 6px 0 var(--primary-dark);
+    color: var(--primary-dark);
+}
+
+.btn-back:hover .home-icon {
+    transform: scale(1.1);
+}
+
+.btn-back:active {
+    transform: translateY(5px) scale(0.95);
+    box-shadow: 0 0 0 var(--primary-dark);
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+    .btn-back {
+        width: 44px;
+        height: 44px;
+        border-width: 3px;
+        top: 10px;
+        left: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15), 0 3px 0 var(--primary-dark);
+    }
+    .home-icon {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+/* Small phones */
+@media (max-width: 400px) {
+    .btn-back {
+        width: 38px;
+        height: 38px;
+        border-width: 2px;
+        top: 8px;
+        left: 8px;
+    }
+    .home-icon {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* Landscape mobile */
+@media (max-height: 500px) {
+    .btn-back {
+        width: 38px;
+        height: 38px;
+        border-width: 2px;
+        top: 6px;
+        left: 8px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.15), 0 2px 0 var(--primary-dark);
+    }
+    .home-icon {
+        width: 20px;
+        height: 20px;
+    }
+}
+</style>

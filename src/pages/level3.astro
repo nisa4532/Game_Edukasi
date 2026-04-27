@@ -1,0 +1,361 @@
+---
+import Layout from '../layouts/Layout.astro';
+import BackButton from '../components/BackButton.astro';
+---
+
+<Layout title="Level 3 - Labirin Hutan">
+    <div class="page-content level-page">
+        <BackButton />
+        <div class="header">
+            <h2 class="level-title">Labirin Hutan</h2>
+            <p class="level-instruction">Bantu kelinci menemukan wortelnya di labirin.</p>
+        </div>
+        
+        <div id="level3-game-area" class="game-area">
+            <div class="canvas-container">
+                <canvas id="maze-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+</Layout>
+
+<style>
+    .level-page {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        position: relative;
+        padding: 12px 20px 15px;
+    }
+
+    .header {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 4px;
+    }
+
+    .level-title {
+        font-size: clamp(1.2rem, 3.5vw, 2.2rem);
+        margin: 0;
+        color: white;
+        text-shadow: 2px 2px 0px var(--primary-dark), -1px -1px 0 var(--primary-dark), 1px -1px 0 var(--primary-dark), -1px 1px 0 var(--primary-dark), 1px 1px 0 var(--primary-dark), 0 4px 10px rgba(0,0,0,0.2);
+        letter-spacing: 1px;
+        white-space: nowrap;
+    }
+
+    .level-instruction {
+        font-family: 'Nunito', sans-serif;
+        font-size: clamp(0.65rem, 1.8vw, 0.95rem);
+        font-weight: 800;
+        color: var(--text-dark);
+        background: rgba(255, 255, 255, 0.95);
+        display: inline-block;
+        padding: 3px 14px;
+        border-radius: 18px;
+        border: 2px solid var(--tertiary);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        margin: 0;
+    }
+
+    .game-area {
+        flex: 1;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 20px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .canvas-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex: 1;
+        min-height: 0;
+    }
+
+    canvas {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.12), 0 0 0 6px rgba(255,255,255,0.5);
+        max-width: 100%;
+        max-height: 100%;
+        display: block;
+        border: 3px solid var(--success);
+        cursor: pointer;
+    }
+
+    /* Tablet */
+    @media (max-width: 768px) {
+        .level-page {
+            padding: 8px 12px 10px;
+        }
+        .game-area {
+            border-radius: 16px;
+            padding: 8px;
+            gap: 6px;
+        }
+        canvas {
+            border-radius: 12px;
+            border-width: 2px;
+        }
+    }
+
+    /* Small phones */
+    @media (max-width: 400px) {
+        .level-page {
+            padding: 6px 8px 8px;
+        }
+        .game-area {
+            padding: 6px;
+            gap: 4px;
+        }
+        canvas {
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1), 0 0 0 3px rgba(255,255,255,0.5);
+        }
+    }
+
+    /* Landscape mobile */
+    @media (max-height: 500px) {
+        .level-page {
+            padding: 4px 10px 4px;
+        }
+        .header {
+            margin-bottom: 2px;
+        }
+        .game-area {
+            padding: 6px;
+        }
+    }
+</style>
+
+<script>
+    import { speak } from '../utils/audio';
+
+    document.addEventListener('astro:page-load', () => {
+        if(window.location.pathname !== '/level3') return;
+
+        speak('Bantu hewan menemukan makanannya di labirin!');
+
+        const canvas = document.getElementById('maze-canvas') as HTMLCanvasElement;
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if(!ctx) return;
+
+        const ROWS = 10;
+        const COLS = 15;
+
+        // 1: wall, 0: path
+        const MAZE_LAYOUT = [
+            [0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0],
+            [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0],
+            [0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+            [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+            [0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0],
+            [0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0],
+            [0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0],
+            [0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0]
+        ];
+
+        let player = { r: 0, c: 0 };
+        const endGoal = { r: 9, c: 14 };
+
+        // Dynamically size the canvas based on available space
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            if (!container) return;
+            
+            const availW = container.clientWidth - 8;
+            const availH = container.clientHeight - 8;
+            
+            const cellFromW = Math.floor(availW / COLS);
+            const cellFromH = Math.floor(availH / ROWS);
+            const CELL_SIZE = Math.max(Math.min(cellFromW, cellFromH, 60), 20);
+            
+            canvas.width = COLS * CELL_SIZE;
+            canvas.height = ROWS * CELL_SIZE;
+            
+            return CELL_SIZE;
+        }
+
+        let currentCellSize = resizeCanvas() || 40;
+
+        function countOpenNeighbors(r: number, c: number): number {
+            const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+            let count = 0;
+            for (const [dr, dc] of dirs) {
+                const nr = r + dr;
+                const nc = c + dc;
+                if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && MAZE_LAYOUT[nr][nc] === 0) {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        function isDeadEnd(r: number, c: number): boolean {
+            return countOpenNeighbors(r, c) <= 1;
+        }
+
+        function drawMaze() {
+            if(!canvas || !ctx) return;
+            const cs = currentCellSize;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const emojiSize = Math.max(Math.floor(cs * 0.75), 14);
+            
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    if (MAZE_LAYOUT[r][c] === 1) {
+                        ctx.fillStyle = '#E8F5E9';
+                        ctx.fillRect(c * cs, r * cs, cs, cs);
+                        
+                        ctx.font = `${emojiSize}px Arial`;
+                        ctx.fillText('🌳', c * cs + cs/2, r * cs + cs/2 + 2);
+                    } else {
+                        ctx.fillStyle = '#F1F2F6';
+                        ctx.fillRect(c * cs, r * cs, cs, cs);
+                    }
+                }
+            }
+            
+            ctx.font = `${emojiSize}px Arial`;
+            ctx.fillText('🥕', endGoal.c * cs + cs/2, endGoal.r * cs + cs/2 + 2);
+            ctx.fillText('🐇', player.c * cs + cs/2, player.r * cs + cs/2 + 2);
+        }
+
+        function handleResize() {
+            currentCellSize = resizeCanvas() || 40;
+            drawMaze();
+        }
+
+        window.addEventListener('resize', handleResize);
+        
+        currentCellSize = resizeCanvas() || 40;
+        drawMaze();
+
+        function movePlayer(dr: number, dc: number) {
+            const nr = player.r + dr;
+            const nc = player.c + dc;
+            
+            if (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS && MAZE_LAYOUT[nr][nc] === 0) {
+                player.r = nr;
+                player.c = nc;
+                drawMaze();
+                
+                if (player.r === endGoal.r && player.c === endGoal.c) {
+                    setTimeout(() => {
+                        (window as any).showFeedback(true, true, '/');
+                    }, 300);
+                } else if (isDeadEnd(player.r, player.c)) {
+                    speak('Oops, jalan buntu!');
+                }
+            }
+        }
+
+        // Keyboard controls (desktop)
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (window.location.pathname !== '/level3') return;
+            if (e.key === 'ArrowUp') movePlayer(-1, 0);
+            if (e.key === 'ArrowDown') movePlayer(1, 0);
+            if (e.key === 'ArrowLeft') movePlayer(0, -1);
+            if (e.key === 'ArrowRight') movePlayer(0, 1);
+        };
+        
+        window.addEventListener('keydown', handleKeyDown);
+
+        // --- Tap/Click on canvas: move toward the tapped direction ---
+        // Determines which direction to move based on where the user
+        // taps/clicks relative to the rabbit's current position.
+        function handleCanvasTap(canvasX: number, canvasY: number) {
+            const cs = currentCellSize;
+            // Player center in canvas coordinates
+            const playerCX = player.c * cs + cs / 2;
+            const playerCY = player.r * cs + cs / 2;
+
+            const dx = canvasX - playerCX;
+            const dy = canvasY - playerCY;
+
+            // Determine primary direction (horizontal vs vertical)
+            if (Math.abs(dx) > Math.abs(dy)) {
+                // Horizontal movement
+                movePlayer(0, dx > 0 ? 1 : -1);
+            } else {
+                // Vertical movement
+                movePlayer(dy > 0 ? 1 : -1, 0);
+            }
+        }
+
+        // Mouse click handler
+        canvas.addEventListener('click', (e: MouseEvent) => {
+            const rect = canvas.getBoundingClientRect();
+            // Scale from CSS size to actual canvas pixel coordinates
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const canvasX = (e.clientX - rect.left) * scaleX;
+            const canvasY = (e.clientY - rect.top) * scaleY;
+            handleCanvasTap(canvasX, canvasY);
+        });
+
+        // Touch tap handler (for mobile - uses touchend for clean single taps)
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        canvas.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        canvas.addEventListener('touchend', (e) => {
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+            const swipeDist = Math.sqrt((endX - touchStartX) ** 2 + (endY - touchStartY) ** 2);
+
+            // If finger moved less than 15px, treat it as a tap
+            // If it moved more, treat it as a swipe (also directional)
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            if (swipeDist < 15) {
+                // Tap: use tap position relative to player
+                const canvasX = (endX - rect.left) * scaleX;
+                const canvasY = (endY - rect.top) * scaleY;
+                handleCanvasTap(canvasX, canvasY);
+            } else {
+                // Swipe: use swipe direction
+                const dx = endX - touchStartX;
+                const dy = endY - touchStartY;
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    movePlayer(0, dx > 0 ? 1 : -1);
+                } else {
+                    movePlayer(dy > 0 ? 1 : -1, 0);
+                }
+            }
+
+            e.preventDefault();
+        });
+
+        // Clean up
+        document.addEventListener('astro:before-swap', () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('resize', handleResize);
+        }, { once: true });
+    });
+</script>

@@ -1,0 +1,23 @@
+{
+  "name": "game-edukasi-hewan",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Game edukasi interaktif untuk anak usia 5-6 tahun dengan tema hewan peliharaan. Melatih kemampuan kognitif melalui aktivitas mencocokkan, mengelompokkan, dan berpikir logis (maze).",
+  "keywords": ["game", "edukasi", "anak", "hewan", "astro"],
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^6.1.9"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.5"
+  }
+}

@@ -1,0 +1,47 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import '../styles/global.css';
+import FeedbackOverlay from '../components/FeedbackOverlay.astro';
+
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="id">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="Ayo bermain dan belajar bersama hewan lucu!" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<title>{title}</title>
+        <ClientRouter />
+	</head>
+	<body>
+        <div id="app-container">
+            <slot />
+            <FeedbackOverlay />
+        </div>
+        
+        <script>
+            import { speak } from '../utils/audio';
+            
+            // Initial greeting on first click anywhere
+            let hasInteracted = false;
+            document.addEventListener('click', () => {
+                if (!hasInteracted) {
+                    // Only greet if on the main page to avoid spamming
+                    if(window.location.pathname === '/') {
+                        speak('Selamat datang di Pet Forest!');
+                    }
+                    hasInteracted = true;
+                }
+            }, { once: true });
+        </script>
+	</body>
+</html>
