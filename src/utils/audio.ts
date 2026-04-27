@@ -1,13 +1,15 @@
+const BASE = import.meta.env.BASE_URL;
+
 const audioMap: Record<string, string> = {
-    'Selamat datang di Pet Forest!': '/sounds/welcome.mp3',
-    'Bagus! Lanjut ke bagian berikutnya!': '/sounds/next_part.mp3',
-    'Ayo hubungkan hewan dengan makanan kesukaannya!': '/sounds/level1_intro.mp3',
-    'Ayo kelompokkan hewan sesuai jenis makanannya!': '/sounds/level2_intro.mp3',
-    'Hore! Kamu hebat sekali! Permainan selesai!': '/sounds/game_complete.mp3',
-    'Benar!': '/sounds/correct.mp3',
-    'Ayo, coba lagi ya!': '/sounds/try_again.mp3',
-    'Bantu hewan menemukan makanannya di labirin!': '/sounds/level3_intro.mp3',
-    'Oops, jalan buntu!': '/sounds/dead_end.mp3',
+    'Selamat datang di Pet Forest!': `${BASE}sounds/welcome.mp3`,
+    'Bagus! Lanjut ke bagian berikutnya!': `${BASE}sounds/next_part.mp3`,
+    'Ayo hubungkan hewan dengan makanan kesukaannya!': `${BASE}sounds/level1_intro.mp3`,
+    'Ayo kelompokkan hewan sesuai jenis makanannya!': `${BASE}sounds/level2_intro.mp3`,
+    'Hore! Kamu hebat sekali! Permainan selesai!': `${BASE}sounds/game_complete.mp3`,
+    'Benar!': `${BASE}sounds/correct.mp3`,
+    'Ayo, coba lagi ya!': `${BASE}sounds/try_again.mp3`,
+    'Bantu hewan menemukan makanannya di labirin!': `${BASE}sounds/level3_intro.mp3`,
+    'Oops, jalan buntu!': `${BASE}sounds/dead_end.mp3`,
 };
 
 let currentAudio: HTMLAudioElement | null = null;
@@ -90,7 +92,7 @@ export function playErrorSound() {
 
 export function playApplauseSound() {
     if (typeof window !== 'undefined') {
-        const audio = new Audio('/sounds/applause.mp3');
+        const audio = new Audio(`${BASE}sounds/applause.mp3`);
         audio.play().catch(e => console.error("Audio play failed", e));
         setTimeout(() => {
             audio.pause();
@@ -100,7 +102,7 @@ export function playApplauseSound() {
 
 export function playKeepTryingSound() {
     if (typeof window !== 'undefined') {
-        const audio = new Audio('/sounds/semangat.mp3');
+        const audio = new Audio(`${BASE}sounds/semangat.mp3`);
         audio.play().catch(e => console.error("Audio play failed", e));
     }
 }
