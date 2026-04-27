@@ -75,6 +75,7 @@ import BackButton from '../components/BackButton.astro';
         border: 3px solid rgba(255,255,255,0.8);
         min-height: 0;
         overflow: hidden;
+        touch-action: none;
     }
 
     .drag-items {
@@ -347,8 +348,8 @@ import BackButton from '../components/BackButton.astro';
         }
     }
 
-    /* Very narrow screens: stack drop zones vertically */
-    @media (max-width: 360px) {
+    /* Narrow screens: stack drop zones vertically */
+    @media (max-width: 480px) {
         .drop-zones {
             flex-direction: column;
         }
